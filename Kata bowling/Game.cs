@@ -35,7 +35,7 @@ namespace Kata_bowling
 
                 frames.Add(currentFrame);
 
-                if (frames.Count > 11)
+                if (frames.Count > 10)
                 {
                     throw new Exception("Number of rolls exceeded");
                 }
@@ -114,12 +114,20 @@ namespace Kata_bowling
             if (!isFrameCompleted && numberOfRoll == 2 && !isTenthFrame)
             {
                 isFrameCompleted = true;
+                return;
             }
+
+            if (isTenthFrame && numberOfRoll == 2 && score < 10)
+            {
+                isFrameCompleted = true;
+                return;
+            }
+
 
             if (isTenthFrame && numberOfRoll == 3)
             {
-                //extraRollBonus = pinsStroked;
                 isFrameCompleted = true;
+                return;
             }
         }
 
