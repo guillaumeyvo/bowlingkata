@@ -11,18 +11,34 @@ namespace Kata_bowling
         private List<Frame> frames = new List<Frame>();
         private Frame currentFrame;
         private Frame previousFrame;
+        private bool isLastFrame = false;
 
         public void Roll(int pinsStroked)
         {
-            if (frames.Count() == 0 || frames[frames.Count() - 1].IsFrameCompleted())
+
+            if (frames.Count == 0 || frames[frames.Count - 1].IsFrameCompleted())
             {
-                currentFrame = new Frame();
-                if (frames.Count() > 0)
+                if (frames.Count == 9)
                 {
-                    previousFrame = frames[frames.Count() - 1];
+                    currentFrame = new Frame(true);
+                    isLastFrame = true;
+                }
+                else
+                {
+                    currentFrame = new Frame();
+                }
+
+                if (frames.Count > 0)
+                {
+                    previousFrame = frames[frames.Count - 1];
                 }
 
                 frames.Add(currentFrame);
+
+                if (frames.Count > 11)
+                {
+                    throw new Exception("Number of rolls exceeded");
+                }
 
             }
 
@@ -40,7 +56,14 @@ namespace Kata_bowling
 
             if (previousFrame.HasStrike())
             {
-                previousFrame.AddStrikeBonus(currentFrame);
+                if (isLastFrame && currentFrame.IsSecondRoll())
+                {
+                    previousFrame.AddStrikeBonus(currentFrame);
+
+                } else if (!isLastFrame)
+                {
+                    previousFrame.AddStrikeBonus(currentFrame);
+                }
             }
 
         }
@@ -64,29 +87,40 @@ namespace Kata_bowling
         private bool hasStrike = false;
         private bool isFrameCompleted = false;
         private int strikeBonus = 0;
+        private bool isTenthFrame = false;
+
+        public Frame(bool isTenthFrame = false)
+        {
+            this.isTenthFrame = isTenthFrame;
+        }
         public void Roll(int pinsStroked)
         {
             score += pinsStroked;
             numberOfRoll++;
 
-            if (score == 10 && numberOfRoll == 1)
+            if (score == 10 && numberOfRoll == 1 && !isTenthFrame)
             {
                 isFrameCompleted = true;
                 hasStrike = true;
                 return;
             }
 
-            if (score == 10)
+            if (score == 10 && !isTenthFrame)
             {
                 isFrameCompleted = true;
                 hasSpare = true;
             }
 
-            if (!isFrameCompleted && numberOfRoll == 2)
+            if (!isFrameCompleted && numberOfRoll == 2 && !isTenthFrame)
             {
                 isFrameCompleted = true;
             }
 
+            if (isTenthFrame && numberOfRoll == 3)
+            {
+                //extraRollBonus = pinsStroked;
+                isFrameCompleted = true;
+            }
         }
 
         public void AddSpareBonus(int bonus)
@@ -122,6 +156,11 @@ namespace Kata_bowling
         public bool HasStrike()
         {
             return hasStrike;
+        }
+
+        public bool IsSecondRoll()
+        {
+            return numberOfRoll == 2;
         }
     }
 }
