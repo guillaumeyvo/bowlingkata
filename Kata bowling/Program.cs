@@ -3,18 +3,12 @@ using Kata_bowling;
 
 var game = new Game();
 
-game.Roll(1);
-game.Roll(4);
+var rolls = new List<int>() { 1, 4, 4, 5, 6, 4, 5, 5, 10, 0, 1, 7, 3, 6, 4, 10 };
 
-game.Roll(4);
-game.Roll(5);
-
-game.Roll(6);
-game.Roll(4);
-
-game.Roll(5);
-game.Roll(5);
-
+foreach (var roll in rolls)
+{
+    game.Roll(roll);
+}
 
 
 Console.WriteLine(game.Score());
