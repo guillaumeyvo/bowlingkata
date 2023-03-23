@@ -1,48 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kata_bowling
+﻿namespace Kata_bowling
 {
     internal class Game
     {
         private List<Frame> frames = new List<Frame>();
-        private Frame currentFrame;
-        private Frame previousFrame;
         private bool isLastFrame = false;
 
         public void Roll(int pinsStroked)
         {
+            (Frame previousFrame, Frame currentFrame) = GetLastTwoFrames(frames);
+            isLastFrame = currentFrame.IsLastFrame();
 
-            if (frames.Count == 0 || frames[frames.Count - 1].IsFrameCompleted())
-            {
-                if (frames.Count == 9)
-                {
-                    currentFrame = new Frame(true);
-                    isLastFrame = true;
-                }
-                else
-                {
-                    currentFrame = new Frame();
-                }
-
-                if (frames.Count > 0)
-                {
-                    previousFrame = frames[frames.Count - 1];
-                }
-
-                frames.Add(currentFrame);
-
-                if (frames.Count > 10)
-                {
-                    throw new Exception("Number of rolls exceeded");
-                }
-
-            }
-
-            currentFrame.Roll(pinsStroked);
+            currentFrame.AddRoll(pinsStroked);
 
             if (previousFrame == null)
             {
@@ -77,6 +45,62 @@ namespace Kata_bowling
 
             return frames.Sum(f => f.GetFrameScore());
         }
+
+        private (Frame previousFrame, Frame currentFrame) GetLastTwoFrames(List<Frame> frames)
+        {
+            Frame currentFrame = null;
+            Frame previousFrame = null;
+
+            if (frames.Count == 0)
+            {
+                currentFrame = new Frame();
+                frames.Add(currentFrame);
+
+                return (previousFrame, currentFrame);
+            }
+
+            if (frames.Count == 1)
+            {
+                if (frames[0].IsFrameCompleted())
+                {
+                    previousFrame = frames[0];
+                    currentFrame = new Frame();
+
+                    frames.Add(currentFrame);
+
+                }
+                else
+                {
+                    previousFrame = null;
+                    currentFrame = frames[0];
+                }
+
+                return (previousFrame, currentFrame);
+
+            }
+
+            if (!frames[frames.Count - 1].IsFrameCompleted())
+            {
+                previousFrame = frames[frames.Count - 2];
+                currentFrame = frames.Last();
+            }
+            else
+            {
+                previousFrame = frames.Last();
+                currentFrame = frames.Count == 9 ? new Frame(true) : new Frame();
+
+                frames.Add(currentFrame);
+
+
+            }
+
+            if (frames.Count > 10)
+            {
+                throw new Exception("Number of rolls exceeded");
+            }
+
+            return (previousFrame, currentFrame);
+        }
     }
 
     internal class Frame
@@ -93,7 +117,7 @@ namespace Kata_bowling
         {
             this.isTenthFrame = isTenthFrame;
         }
-        public void Roll(int pinsStroked)
+        public void AddRoll(int pinsStroked)
         {
             score += pinsStroked;
             numberOfRoll++;
@@ -109,6 +133,7 @@ namespace Kata_bowling
             {
                 isFrameCompleted = true;
                 hasSpare = true;
+                return;
             }
 
             if (!isFrameCompleted && numberOfRoll == 2 && !isTenthFrame)
@@ -169,6 +194,11 @@ namespace Kata_bowling
         public bool IsSecondRoll()
         {
             return numberOfRoll == 2;
+        }
+
+        public bool IsLastFrame()
+        {
+            return isTenthFrame;
         }
     }
 }
