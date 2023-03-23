@@ -3,13 +3,10 @@
     internal class Game
     {
         private List<Frame> frames = new List<Frame>();
-        private bool isLastFrame = false;
 
         public void Roll(int pinsStroked)
         {
             (Frame previousFrame, Frame currentFrame) = GetLastTwoFrames(frames);
-            isLastFrame = currentFrame.IsLastFrame();
-
             currentFrame.AddRoll(pinsStroked);
 
             if (previousFrame == null)
@@ -24,11 +21,11 @@
 
             if (previousFrame.HasStrike())
             {
-                if (isLastFrame && currentFrame.IsSecondRoll())
+                if (currentFrame.IsLastFrame() && currentFrame.IsSecondRoll())
                 {
                     previousFrame.AddStrikeBonus(currentFrame);
 
-                } else if (!isLastFrame)
+                } else if (!currentFrame.IsLastFrame())
                 {
                     previousFrame.AddStrikeBonus(currentFrame);
                 }
